@@ -51,43 +51,26 @@ jobs:
               run: pylint --fail-under=9.0 app.py
 
     # ==========================================
-    # CD STAGE: Build & Deploy ke VM
+    # CD STAGE: Build & Deploy Langsung di VM VirtualBox
     # ==========================================
     deploy-to-vm:
-        name: Build & Deploy to Target VM
-        needs: [sast-scan, pylint-check] # Syarat: kedua job CI wajib lolos
-        runs-on: ubuntu-latest
+        name: Build & Deploy to VirtualBox VM
+        needs: [sast-scan, pylint-check] # WAjib lolos CI dulu
+        runs-on: self-hosted
         steps:
             - name: Checkout Source Code
               uses: actions/checkout@v4
 
-            - name: Setup SSH Connection
+            - name: Build Docker Image and Run Container
               run: |
-                  mkdir -p ~/.ssh
-                  echo "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/id_ed25519
-                  chmod 600 ~/.ssh/id_ed25519
-                  ssh-keyscan -p ${{ secrets.VM_PORT }} ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+                  echo "Menjalankan build langsung di VM lokal..."
+                  docker build -t secure-flask-app:latest .
 
-            - name: Deploy and Run Container on VM
-              env:
-                  HOST: ${{ secrets.VM_HOST }}
-                  USER: ${{ secrets.VM_USER }}
-                  PORT: ${{ secrets.VM_PORT }}
-              run: |
-                  # 1. Salin file projek ke direktori target di VM
-                  ssh -p $PORT $USER@$HOST "mkdir -p ~/app-deploy"
-                  scp -P $PORT -r ./Dockerfile ./app.py ./requirements.txt $USER@$HOST:~/app-deploy/
+                  echo "Restarting container web-flask..."
+                  docker stop web-flask || true
+                  docker rm web-flask || true
 
-                  # 2. Build Dockerfile dan jalankan container baru di VM
-                  ssh -p $PORT $USER@$HOST << 'EOF'
-                    cd ~/app-deploy
-                    echo "Membuat Docker Image..."
-                    docker build -t secure-flask-app:latest .
+                  docker run -d -p 5000:5000 --name web-flask secure-flask-app:latest
 
-                    echo "Memperbarui Container..."
-                    docker stop web-flask || true
-                    docker rm web-flask || true
-
-                    docker run -d -p 5000:5000 --name web-flask secure-flask-app:latest
-                    docker ps | grep web-flask
-                  EOF
+                  echo "Status container:"
+                  docker ps | grep web-flask
