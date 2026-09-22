@@ -1,4 +1,4 @@
-"""Modul backend autentikasi Flask dengan antarmuka web interaktif."""
+"""Modul backend autentikasi Flask aman dengan antarmuka web interaktif."""
 
 import sqlite3
 from flask import Flask, render_template, request
@@ -22,7 +22,7 @@ def init_db():
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    """Menampilkan formulir login dan memproses autentikasi."""
+    """Menampilkan formulir login dan memproses autentikasi pengguna."""
     message = None
     status_class = None
 
@@ -40,11 +40,11 @@ def index():
         conn.close()
 
         if user:
-            message = "Login Berhasil! Selamat datang."
-            status_class = "success"
-        else:
-            message = "Login Gagal! Kredensial tidak valid."
-            status_class = "danger"
+            # Langsung render template dashboard (aman dari Open Redirect & XSS)
+            return render_template("dashboard.html", username=username)
+
+        message = "Login Gagal! Kredensial tidak valid."
+        status_class = "danger"
 
     return render_template(
         "index.html", message=message, status_class=status_class

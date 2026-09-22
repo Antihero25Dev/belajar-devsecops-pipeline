@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Dashboard</title>
+        <style>
+            body {
+                margin: 0;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                background-color: #0d1117;
+                color: #c9d1d9;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+            h1 {
+                color: #58a6ff;
+                margin-bottom: 0.5rem;
+            }
+            p {
+                color: #8b949e;
+                margin-top: 0;
+            }
+            a {
+                margin-top: 1.5rem;
+                color: #58a6ff;
+                text-decoration: none;
+                border: 1px solid #30363d;
+                background-color: #161b22;
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-size: 0.9rem;
+                font-weight: 500;
+            }
+            a:hover {
+                background-color: #21262d;
+                border-color: #8b949e;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Selamat Datang, {{ username }}!</h1>
+        <p>Anda berhasil terautentikasi ke dalam sistem portal.</p>
+        <a href="/">Keluar / Kembali</a>
+    </body>
+</html>
