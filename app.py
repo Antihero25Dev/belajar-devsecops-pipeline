@@ -1,7 +1,7 @@
-"""Modul backend autentikasi Flask dengan implementasi kueri aman."""
+"""Modul backend autentikasi Flask dengan antarmuka web interaktif."""
 
 import sqlite3
-from flask import Flask, request
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
@@ -20,23 +20,35 @@ def init_db():
     conn.close()
 
 
-@app.route("/login", methods=["GET"])
-def login():
-    """Endpoint login menggunakan parameterized query."""
-    username = request.args.get("username", "")
-    password = request.args.get("password", "")
+@app.route("/", methods=["GET", "POST"])
+def index():
+    """Menampilkan formulir login dan memproses autentikasi."""
+    message = None
+    status_class = None
 
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
+    if request.method == "POST":
+        username = request.form.get("username", "")
+        password = request.form.get("password", "")
 
-    query = "SELECT * FROM users WHERE username = ? AND password = ?"
-    cursor.execute(query, (username, password))
-    user = cursor.fetchone()
-    conn.close()
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
 
-    if user:
-        return "<h3>Login Berhasil!</h3>"
-    return "<h3>Login Gagal!</h3>"
+        # Parameterized query untuk mencegah SQL Injection
+        query = "SELECT * FROM users WHERE username = ? AND password = ?"
+        cursor.execute(query, (username, password))
+        user = cursor.fetchone()
+        conn.close()
+
+        if user:
+            message = "Login Berhasil! Selamat datang."
+            status_class = "success"
+        else:
+            message = "Login Gagal! Kredensial tidak valid."
+            status_class = "danger"
+
+    return render_template(
+        "index.html", message=message, status_class=status_class
+    )
 
 
 if __name__ == "__main__":
