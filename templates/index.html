@@ -1,109 +1,136 @@
 <!doctype html>
-<html lang="id" class="dark">
+<html lang="id">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Sistem Login Aman</title>
-        <!-- Tailwind CSS CDN -->
-        <script src="https://cdn.tailwindcss.com"></script>
-        <!-- Google Fonts Inter -->
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-        <script>
-            tailwind.config = {
-                darkMode: "class",
-                theme: {
-                    extend: {
-                        fontFamily: {
-                            sans: ["Inter", "sans-serif"],
-                        },
-                    },
-                },
-            };
-        </script>
+        <title>Sistem Login Aman - Dark Mode</title>
         <style>
-            .bg-dark-pattern {
-                background-color: #09090b; /* zinc-950 */
-                background-image: radial-gradient(rgba(59, 130, 246, 0.15) 1px, transparent 1px), radial-gradient(rgba(255, 255, 255, 0.05) 1px, #09090b 1px);
-                background-size: 32px 32px;
-                background-position:
-                    0 0,
-                    16px 16px;
+            :root {
+                --bg-color: #0d1117;
+                --card-bg: #161b22;
+                --border-color: #30363d;
+                --text-main: #c9d1d9;
+                --text-muted: #8b949e;
+                --btn-bg: #238636;
+                --btn-hover: #2ea043;
+                --input-bg: #0d1117;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background-color: var(--bg-color);
+                color: var(--text-main);
+            }
+
+            .card {
+                background-color: var(--card-bg);
+                border: 1px solid var(--border-color);
+                padding: 2.5rem;
+                border-radius: 8px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+                width: 320px;
+            }
+
+            h2 {
+                margin-top: 0;
+                margin-bottom: 1.5rem;
+                text-align: center;
+                font-size: 1.3rem;
+                font-weight: 600;
+                color: #f0f6fc;
+            }
+
+            .form-group {
+                margin-bottom: 1.2rem;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 0.4rem;
+                font-size: 0.85rem;
+                color: var(--text-muted);
+            }
+
+            input[type="text"],
+            input[type="password"] {
+                width: 100%;
+                padding: 0.6rem;
+                background-color: var(--input-bg);
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                color: var(--text-main);
+                box-sizing: border-box;
+                font-size: 0.95rem;
+            }
+
+            input[type="text"]:focus,
+            input[type="password"]:focus {
+                outline: none;
+                border-color: #58a6ff;
+                box-shadow: 0 0 0 3px rgba(56, 139, 253, 0.3);
+            }
+
+            button {
+                width: 100%;
+                padding: 0.7rem;
+                background-color: var(--btn-bg);
+                color: #ffffff;
+                border: none;
+                border-radius: 6px;
+                font-size: 0.95rem;
+                font-weight: 600;
+                cursor: pointer;
+                margin-top: 0.5rem;
+            }
+
+            button:hover {
+                background-color: var(--btn-hover);
+            }
+
+            .alert {
+                padding: 0.6rem;
+                border-radius: 6px;
+                margin-bottom: 1.2rem;
+                text-align: center;
+                font-size: 0.85rem;
+            }
+
+            .success {
+                background-color: rgba(46, 160, 67, 0.15);
+                border: 1px solid rgba(46, 160, 67, 0.4);
+                color: #3fb950;
+            }
+
+            .danger {
+                background-color: rgba(248, 81, 73, 0.15);
+                border: 1px solid rgba(248, 81, 73, 0.4);
+                color: #f85149;
             }
         </style>
     </head>
-    <body
-        class="bg-dark-pattern text-zinc-100 font-sans min-h-screen flex items-center justify-center p-4 antialiased selection:bg-blue-600 selection:text-white"
-    >
-        <!-- Ambient Radial Glow Behind Card -->
-        <div class="fixed inset-0 pointer-events-none flex items-center justify-center">
-            <div class="w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-3xl"></div>
-        </div>
-
-        <div
-            class="relative w-full max-w-md bg-zinc-900/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-zinc-800/80 p-8 transition-all duration-300 hover:border-zinc-700/80"
-        >
-            <!-- Header Section -->
-            <div class="text-center mb-8">
-                <div
-                    class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-500/10 text-blue-400 mb-4 border border-blue-500/20 shadow-inner"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="w-7 h-7">
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
-                        />
-                    </svg>
-                </div>
-                <h2 class="text-2xl font-bold text-white tracking-tight">Portal Login</h2>
-                <p class="text-sm text-zinc-400 mt-1.5">Masukkan kredensial Anda untuk melanjutkan</p>
-            </div>
-
+    <body>
+        <div class="card">
+            <h2>Portal Login</h2>
             {% if message %}
-            <div class="mb-6 p-4 rounded-xl text-sm font-medium text-center shadow-lg border transition-all duration-200 {{ status_class }}">{{ message }}</div>
+            <div class="alert {{ status_class }}">{{ message }}</div>
             {% endif %}
-
             <!-- nosemgrep: python.django.security.django-no-csrf-token.django-no-csrf-token -->
-            <form method="POST" action="/" class="space-y-5">
-                <div>
-                    <label for="username" class="block text-xs font-semibold uppercase tracking-wider text-zinc-300 mb-2">Nama Pengguna</label>
-                    <div class="relative">
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            required
-                            placeholder="nama_pengguna"
-                            class="w-full px-4 py-3 rounded-xl bg-zinc-950/60 border border-zinc-800 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/80 focus:border-blue-500 transition duration-200 text-sm shadow-inner"
-                        />
-                    </div>
+            <form method="POST" action="/">
+                <div class="form-group">
+                    <label for="username">Nama Pengguna</label>
+                    <input type="text" id="username" name="username" required autocomplete="off" />
                 </div>
-
-                <div>
-                    <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-zinc-300 mb-2">Kata Sandi</label>
-                    <div class="relative">
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            required
-                            placeholder="••••••••"
-                            class="w-full px-4 py-3 rounded-xl bg-zinc-950/60 border border-zinc-800 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/80 focus:border-blue-500 transition duration-200 text-sm shadow-inner"
-                        />
-                    </div>
+                <div class="form-group">
+                    <label for="password">Kata Sandi</label>
+                    <input type="password" id="password" name="password" required />
                 </div>
-
-                <button
-                    type="submit"
-                    class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 focus:ring-4 focus:ring-blue-500/30 text-white font-semibold rounded-xl transition-all duration-200 ease-in-out shadow-lg shadow-blue-600/25 active:scale-[0.98] cursor-pointer mt-2"
-                >
-                    Masuk
-                </button>
+                <button type="submit">Masuk</button>
             </form>
-
-            <div class="mt-8 pt-6 border-t border-zinc-800/60 text-center text-xs text-zinc-500">
-                &copy; {{ current_year|default:"2026" }} Sistem Login Aman. Hak cipta dilindungi.
-            </div>
         </div>
     </body>
 </html>
