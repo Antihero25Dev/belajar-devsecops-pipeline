@@ -18,11 +18,10 @@ jobs:
             image: semgrep/semgrep
         steps:
             - name: Checkout Source Code
-              # Menggunakan full 40-character SHA untuk actions/checkout@v4.1.7
-              uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+              uses: actions/checkout@v4
 
             - name: Run Semgrep SAST
-              # Batasi pemindaian pada file aplikasi (app.py) atau gunakan flag --exclude
+              # --exclude=".github" mencegah Semgrep memeriksa file workflow YAML
               run: semgrep scan --config auto --error --verbose --exclude=".github"
 
     # ==========================================
@@ -33,11 +32,10 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Source Code
-              uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+              uses: actions/checkout@v4
 
             - name: Setup Python
-              # Menggunakan full 40-character SHA untuk actions/setup-python@v5.1.1
-              uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcb80e669f
+              uses: actions/setup-python@v5
               with:
                   python-version: "3.10"
 
@@ -59,7 +57,7 @@ jobs:
         runs-on: self-hosted
         steps:
             - name: Checkout Source Code
-              uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+              uses: actions/checkout@v4
 
             - name: Build and Run Container
               run: |
