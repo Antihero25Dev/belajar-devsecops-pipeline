@@ -1,0 +1,93 @@
+name: DevSecOps CI/CD Pipeline
+
+on:
+    push:
+        branches: ["main", "master"]
+    pull_request:
+        branches: ["main", "master"]
+    workflow_dispatch: {}
+
+jobs:
+    # ==========================================
+    # CI JOB 1: SAST Scan (Semgrep)
+    # ==========================================
+    sast-scan:
+        name: Semgrep SAST Scan
+        runs-on: ubuntu-latest
+        container:
+            image: semgrep/semgrep
+        steps:
+            - name: Checkout Source Code
+              uses: actions/checkout@v4
+
+            - name: Run Semgrep SAST
+              # --error membatalkan job jika ada temuan severity blocking/error
+              run: semgrep scan --config auto --error --verbose
+
+    # ==========================================
+    # CI JOB 2: Code Quality (Pylint)
+    # Berjalan paralel bersama sast-scan
+    # ==========================================
+    pylint-check:
+        name: Pylint Code Quality Gate
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Source Code
+              uses: actions/checkout@v4
+
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.10"
+
+            - name: Install Dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install pylint
+                  pip install -r requirements.txt
+
+            - name: Run Pylint Check
+              # Job gagal jika nilai code quality di bawah 9.0/10
+              run: pylint --fail-under=9.0 app.py
+
+    # ==========================================
+    # CD STAGE: Build & Deploy ke VM
+    # ==========================================
+    deploy-to-vm:
+        name: Build & Deploy to Target VM
+        needs: [sast-scan, pylint-check] # Syarat: kedua job CI wajib lolos
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Source Code
+              uses: actions/checkout@v4
+
+            - name: Setup SSH Connection
+              run: |
+                  mkdir -p ~/.ssh
+                  echo "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/id_ed25519
+                  chmod 600 ~/.ssh/id_ed25519
+                  ssh-keyscan -p ${{ secrets.VM_PORT }} ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+
+            - name: Deploy and Run Container on VM
+              env:
+                  HOST: ${{ secrets.VM_HOST }}
+                  USER: ${{ secrets.VM_USER }}
+                  PORT: ${{ secrets.VM_PORT }}
+              run: |
+                  # 1. Salin file projek ke direktori target di VM
+                  ssh -p $PORT $USER@$HOST "mkdir -p ~/app-deploy"
+                  scp -P $PORT -r ./Dockerfile ./app.py ./requirements.txt $USER@$HOST:~/app-deploy/
+
+                  # 2. Build Dockerfile dan jalankan container baru di VM
+                  ssh -p $PORT $USER@$HOST << 'EOF'
+                    cd ~/app-deploy
+                    echo "Membuat Docker Image..."
+                    docker build -t secure-flask-app:latest .
+
+                    echo "Memperbarui Container..."
+                    docker stop web-flask || true
+                    docker rm web-flask || true
+
+                    docker run -d -p 5000:5000 --name web-flask secure-flask-app:latest
+                    docker ps | grep web-flask
+                  EOF
