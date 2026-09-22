@@ -1,29 +1,45 @@
-from flask import Flask, request
+"""Modul backend autentikasi Flask dengan implementasi kueri aman."""
+
 import sqlite3
+from flask import Flask, request
 
 app = Flask(__name__)
 
-def get_db_connection():
-    conn = sqlite3.connect("users.db")
-    return conn
 
-@app.route("/login", methods=["GET"])
-def login():
-    username = request.args.get("username")
-    password = request.args.get("password")
-    conn = get_db_connection()
+def init_db():
+    """Inisialisasi basis data dan membuat data pengguna awal."""
+    conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
-    # Rentan: string formatting pada query memicu celah SQL Injection
-    query = "SELECT * FROM users WHERE username = '%s' AND password = '%s'" % (
-        username,
-        password,
+    cursor.execute(
+        "CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)"
     )
-    cursor.execute(query)
+    cursor.execute(
+        "INSERT OR IGNORE INTO users VALUES ('admin', 'supersecret')"
+    )
+    conn.commit()
+    conn.close()
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    """Endpoint login menggunakan parameterized query."""
+    username = request.args.get("username", "")
+    password = request.args.get("password", "")
+
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+
+    # Parameterized query (?) mencegah manipulasi sintaks SQL
+    query = "SELECT * FROM users WHERE username = ? AND password = ?"
+    cursor.execute(query, (username, password))
     user = cursor.fetchone()
     conn.close()
+
     if user:
-        return "Login berhasil"
-    return "Username atau password salah"
+        return "<h3>Login Berhasil!</h3>"
+    return "<h3>Login Gagal!</h3>"
+
 
 if __name__ == "__main__":
+    init_db()
     app.run(host="0.0.0.0", port=5000)
