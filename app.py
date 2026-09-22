@@ -23,7 +23,7 @@ def login():
     conn.close()
     if user:
         return "Login berhasil"
-    return "Login gagal"
+    return "Username atau password salah"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
