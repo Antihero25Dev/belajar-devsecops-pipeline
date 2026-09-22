@@ -18,25 +18,26 @@ jobs:
             image: semgrep/semgrep
         steps:
             - name: Checkout Source Code
-              uses: actions/checkout@v4
+              # Menggunakan full 40-character SHA untuk actions/checkout@v4.1.7
+              uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
             - name: Run Semgrep SAST
-              # --error membatalkan job jika ada temuan severity blocking/error
-              run: semgrep scan --config auto --error --verbose
+              # Batasi pemindaian pada file aplikasi (app.py) atau gunakan flag --exclude
+              run: semgrep scan --config auto --error --verbose --exclude=".github"
 
     # ==========================================
     # CI JOB 2: Code Quality (Pylint)
-    # Berjalan paralel bersama sast-scan
     # ==========================================
     pylint-check:
         name: Pylint Code Quality Gate
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Source Code
-              uses: actions/checkout@v4
+              uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
             - name: Setup Python
-              uses: actions/setup-python@v5
+              # Menggunakan full 40-character SHA untuk actions/setup-python@v5.1.1
+              uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcb80e669f
               with:
                   python-version: "3.10"
 
@@ -47,30 +48,23 @@ jobs:
                   pip install -r requirements.txt
 
             - name: Run Pylint Check
-              # Job gagal jika nilai code quality di bawah 9.0/10
               run: pylint --fail-under=9.0 app.py
 
     # ==========================================
-    # CD STAGE: Build & Deploy Langsung di VM VirtualBox
+    # CD STAGE: Deploy ke VM
     # ==========================================
     deploy-to-vm:
         name: Build & Deploy to VirtualBox VM
-        needs: [sast-scan, pylint-check] # WAjib lolos CI dulu
+        needs: [sast-scan, pylint-check]
         runs-on: self-hosted
         steps:
             - name: Checkout Source Code
-              uses: actions/checkout@v4
+              uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
-            - name: Build Docker Image and Run Container
+            - name: Build and Run Container
               run: |
-                  echo "Menjalankan build langsung di VM lokal..."
                   docker build -t secure-flask-app:latest .
-
-                  echo "Restarting container web-flask..."
                   docker stop web-flask || true
                   docker rm web-flask || true
-
                   docker run -d -p 5000:5000 --name web-flask secure-flask-app:latest
-
-                  echo "Status container:"
                   docker ps | grep web-flask

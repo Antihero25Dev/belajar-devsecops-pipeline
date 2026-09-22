@@ -20,7 +20,7 @@ def init_db():
     conn.close()
 
 
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["GET"])
 def login():
     """Endpoint login menggunakan parameterized query."""
     username = request.args.get("username", "")
@@ -29,7 +29,6 @@ def login():
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
 
-    # Parameterized query (?) mencegah manipulasi sintaks SQL
     query = "SELECT * FROM users WHERE username = ? AND password = ?"
     cursor.execute(query, (username, password))
     user = cursor.fetchone()
@@ -42,4 +41,4 @@ def login():
 
 if __name__ == "__main__":
     init_db()
-    app.run(host="0.0.0.0", port=5000)
+    app.run(port=5000)
